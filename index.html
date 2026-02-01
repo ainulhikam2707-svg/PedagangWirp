@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pedagang Order Form</title>
+<style>
+/* ─── RESET ─── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+
+/* ─── VARIABLES ─── */
+:root{
+  --bg:#08090b;
+  --card:#111315;
+  --inp:#0e1012;
+  --gold:#c9a84c;
+  --gold2:#e8d49a;
+  --gg:rgba(201,168,76,.18);
+  --gd:rgba(201,168,76,.08);
+  --txt:#eae6df;
+  --dim:#6b7280;
+  --bdr:rgba(255,255,255,.06);
+  --gbdr:rgba(201,168,76,.14);
+}
+
+/* ─── BODY ─── */
+html{scroll-behavior:smooth}
+body{
+  font-family:'Segoe UI',system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--txt);
+  min-height:100vh;
+  line-height:1.6;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ─── AMBIENT ─── */
+.ambient{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 50% at 20% 30%,rgba(201,168,76,.06) 0%,transparent 65%),
+    radial-gradient(ellipse 50% 40% at 80% 70%,rgba(80,140,220,.04) 0%,transparent 60%);
+}
+
+/* ─── WRAPPER ─── */
+.wrap{position:relative;z-index:1;max-width:700px;margin:0 auto;padding:52px 22px 90px}
+
+/* ─── HEADER ─── */
+.hdr{text-align:center;margin-bottom:44px}
+.hdr .pill{
+  display:inline-block;font-size:11px;letter-spacing:2.4px;text-transform:uppercase;
+  color:var(--gold);background:var(--gd);border:1px solid var(--gbdr);
+  padding:6px 18px;border-radius:30px;margin-bottom:16px;
+  animation:fadeD .6s ease both;
+}
+.hdr h1{
+  font-weight:800;font-size:clamp(30px,6vw,44px);letter-spacing:-1px;
+  background:linear-gradient(135deg,var(--gold2) 0%,var(--gold) 60%,#a07830 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:fadeD .7s .1s ease both;
+}
+.hdr p{color:var(--dim);font-size:14px;font-weight:300;margin-top:8px;animation:fadeD .7s .2s ease both}
+
+/* ─── CARD ─── */
+.card{
+  background:var(--card);border:1px solid var(--bdr);border-radius:14px;
+  padding:28px 26px;margin-bottom:20px;
+  animation:cardU .5s ease both;
+}
+.card:nth-child(1){animation-delay:.12s}
+.card:nth-child(2){animation-delay:.22s}
+.card:nth-child(3){animation-delay:.32s}
+.card:nth-child(4){animation-delay:.42s}
+.card:nth-child(5){animation-delay:.52s}
+
+.ctitle{
+  font-weight:700;font-size:15px;letter-spacing:.4px;
+  color:var(--gold2);margin-bottom:18px;
+  display:flex;align-items:center;gap:9px;
+}
+.ctitle .ico{font-size:18px}
+
+/* ─── FIELD ─── */
+.field{margin-bottom:16px}
+.field:last-child{margin-bottom:0}
+.field label{
+  display:block;font-size:11.5px;font-weight:600;color:var(--dim);
+  text-transform:uppercase;letter-spacing:1.3px;margin-bottom:7px;
+}
+.field input{
+  width:100%;background:var(--inp);border:1px solid var(--bdr);border-radius:10px;
+  padding:12px 15px;font-family:inherit;font-size:14px;color:var(--txt);outline:none;
+  transition:border-color .25s,box-shadow .25s;
+}
+.field input::placeholder{color:var(--dim)}
+.field input:focus{border-color:var(--gold);box-shadow:0 0 0 3px var(--gg)}
+
+/* ─── PACKAGES ─── */
+.pgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+
+.pcard{
+  background:var(--inp);border:1.5px solid var(--bdr);border-radius:12px;
+  padding:18px 6px 14px;text-align:center;cursor:pointer;
+  transition:all .22s ease;position:relative;user-select:none;
+}
+.pcard:hover{border-color:rgba(201,168,76,.35);background:var(--gd);transform:translateY(-2px)}
+.pcard.on{border-color:var(--gold);background:var(--gd);box-shadow:0 0 18px var(--gg)}
+.pcard.on .pchk{opacity:1;transform:scale(1)}
+
+.pchk{
+  position:absolute;top:6px;right:6px;width:18px;height:18px;
+  background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:10px;color:#08090b;font-weight:700;opacity:0;transform:scale(.4);transition:.2s ease;
+}
+.pemoji{font-size:24px;margin-bottom:5px}
+.pname{font-weight:700;font-size:11px;color:var(--txt);text-transform:uppercase;letter-spacing:.7px}
+.pprice{font-size:11px;color:var(--gold);font-weight:600;margin-top:3px}
+
+/* qty */
+.pqty{display:none;align-items:center;justify-content:center;gap:6px;margin-top:9px}
+.pcard.on .pqty{display:flex}
+.qbtn{
+  width:22px;height:22px;border-radius:6px;border:1px solid var(--gbdr);
+  background:var(--card);color:var(--gold2);font-size:16px;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background .15s;line-height:1;
+}
+.qbtn:hover{background:var(--gd)}
+.qval{font-size:13px;font-weight:600;color:var(--txt);min-width:16px;text-align:center}
+
+/* ─── TOTAL ─── */
+.trow{
+  display:flex;justify-content:space-between;align-items:center;
+  background:var(--inp);border:1px solid var(--gbdr);border-radius:12px;padding:17px 20px;
+}
+.tlabel{font-size:13px;color:var(--dim);font-weight:500}
+.tval{font-weight:800;font-size:26px;color:var(--gold2);letter-spacing:-.5px;transition:transform .2s}
+.tval.bump{transform:scale(1.1)}
+
+/* ─── UPLOAD ─── */
+.uzone{
+  border:1.5px dashed var(--gbdr);border-radius:12px;padding:34px 20px;
+  text-align:center;cursor:pointer;transition:all .25s;position:relative;background:var(--inp);
+}
+.uzone:hover,.uzone.over{border-color:var(--gold);background:var(--gd)}
+.uzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.uicon{font-size:32px;margin-bottom:7px}
+.utitle{font-size:13.5px;font-weight:500;color:var(--txt)}
+.usub{font-size:11.5px;color:var(--dim);margin-top:4px}
+
+.pstrip{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.pthumb{
+  width:66px;height:66px;border-radius:8px;position:relative;
+  overflow:hidden;border:1px solid var(--gbdr);animation:popI .25s ease both;
+}
+.pthumb img{width:100%;height:100%;object-fit:cover;display:block}
+.trm{
+  position:absolute;top:3px;right:3px;width:18px;height:18px;
+  background:rgba(0,0,0,.75);border-radius:50%;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:10px;color:#fff;opacity:0;transition:opacity .15s;
+}
+.pthumb:hover .trm{opacity:1}
+
+/* ─── BUTTON ─── */
+.sbtn{
+  width:100%;padding:16px;border:none;border-radius:12px;
+  background:linear-gradient(135deg,var(--gold) 0%,#b08a3a 100%);
+  color:#08090b;font-family:inherit;font-weight:700;font-size:15px;
+  letter-spacing:1.1px;text-transform:uppercase;cursor:pointer;
+  transition:transform .2s,box-shadow .2s,opacity .2s;
+  position:relative;overflow:hidden;margin-top:6px;
+  animation:cardU .5s .6s ease both;
+}
+.sbtn:hover{transform:translateY(-2px);box-shadow:0 8px 30px var(--gg)}
+.sbtn:active{transform:translateY(0)}
+.sbtn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+.sbtn .shine{
+  position:absolute;top:0;left:-100%;width:60%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);
+  transition:left .55s ease;
+}
+.sbtn:not(:disabled):hover .shine{left:150%}
+.sbtn .stxt{position:relative;z-index:1}
+
+/* ─── TOAST ─── */
+.toast{
+  position:fixed;bottom:28px;left:50%;
+  transform:translateX(-50%) translateY(110px);
+  background:#141720;border:1px solid var(--bdr);border-radius:13px;
+  padding:14px 24px;font-size:13.5px;font-weight:500;
+  display:flex;align-items:center;gap:11px;z-index:999;
+  transition:transform .38s cubic-bezier(.34,1.56,.64,1),opacity .3s;
+  opacity:0;pointer-events:none;max-width:90vw;
+}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast .ti{font-size:18px;flex-shrink:0}
+.toast.ok{border-color:rgba(74,222,128,.3)}
+.toast.err{border-color:rgba(224,85,85,.3)}
+.toast.wait{border-color:rgba(201,168,76,.3)}
+.spin{
+  width:18px;height:18px;border:2.5px solid var(--gbdr);
+  border-top-color:var(--gold);border-radius:50%;animation:sp .55s linear infinite;
+}
+
+/* ─── KEYFRAMES ─── */
+@keyframes fadeD{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes cardU{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popI{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:520px){
+  .wrap{padding:34px 14px 80px}
+  .card{padding:22px 17px}
+  .pgrid{grid-template-columns:repeat(3,1fr)}
+  .hdr h1{font-size:26px}
+}
+</style>
+</head>
+<body>
+
+<div class="ambient"></div>
+
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="hdr">
+    <div class="pill">⚙ Sistem Order Pedagang</div>
+    <h1>Pedagang Order</h1>
+    <p>Lengkapi semua field — kirim otomatis ke Discord</p>
+  </div>
+
+  <!-- NAMA ANGGOTA -->
+  <div class="card">
+    <div class="ctitle"><span class="ico">👤</span> Nama Anggota</div>
+    <div class="field">
+      <label>Nama Lengkap</label>
+      <input type="text" id="namaAnggota" placeholder="Contoh: Budi Santoso" />
+    </div>
+  </div>
+
+  <!-- NAMA HANDLE -->
+  <div class="card">
+    <div class="ctitle"><span class="ico">🏷️</span> Nama Handle</div>
+    <div class="field">
+      <label>Handle / Username</label>
+      <input type="text" id="namaHandle" placeholder="Contoh: @BudiTrader" />
+    </div>
+  </div>
+
+  <!-- PILIH PAKET -->
+  <div class="card">
+    <div class="ctitle"><span class="ico">📦</span> Pilih Paket</div>
+    <div class="pgrid" id="pgrid"></div>
+  </div>
+
+  <!-- TOTAL HARGA -->
+  <div class="card">
+    <div class="ctitle"><span class="ico">💰</span> Total Harga</div>
+    <div class="trow">
+      <span class="tlabel">Jumlah Bayar</span>
+      <span class="tval" id="tval">Rp 0</span>
+    </div>
+  </div>
+
+  <!-- BUKTI FOTO -->
+  <div class="card">
+    <div class="ctitle"><span class="ico">🖼️</span> Bukti Foto Pembayaran</div>
+    <div class="uzone" id="uzone">
+      <input type="file" id="finput" accept="image/*" multiple />
+      <div class="uicon">📤</div>
+      <div class="utitle">Drag &amp; Drop atau Klik untuk Upload</div>
+      <div class="usub">JPG, PNG, WEBP · Maks 8MB per foto</div>
+    </div>
+    <div class="pstrip" id="pstrip"></div>
+  </div>
+
+  <!-- KIRIM -->
+  <button class="sbtn" id="sbtn" disabled>
+    <span class="shine"></span>
+    <span class="stxt">Kirim ke Discord ✈️</span>
+  </button>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="ti" id="ti">✅</span>
+  <span id="tmsg">OK</span>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════
+var WH = 'https://discord.com/api/webhooks/1467472655161491693/7zAtxoxFpF1Odiq9CRKw3oKRVQGsrDULtIFdUd0I2f86xNxGdg1cU_-aekUYmrdqOzQu';
+
+var PKGS = [
+  {id:'small' , name:'Small' , emoji:'🥉', price:50000 },
+  {id:'medium', name:'Medium', emoji:'🥈', price:100000},
+  {id:'high'  , name:'High'  , emoji:'🥇', price:200000},
+  {id:'combo' , name:'Combo' , emoji:'🎯', price:300000},
+  {id:'extra' , name:'Extra' , emoji:'⭐', price:500000}
+];
+
+var sel   = {};   // selected packages { id: qty }
+var files = [];   // uploaded image files
+
+// ════════════════════════════════════════════
+// HELPERS
+// ════════════════════════════════════════════
+function fmtRp(n){
+  return 'Rp ' + n.toLocaleString('id-ID');
+}
+
+// ════════════════════════════════════════════
+// RENDER PACKAGES
+// ════════════════════════════════════════════
+var grid = document.getElementById('pgrid');
+
+PKGS.forEach(function(p){
+  var d = document.createElement('div');
+  d.className = 'pcard';
+  d.setAttribute('data-id', p.id);
+  d.innerHTML =
+    '<div class="pchk">✓</div>'+
+    '<div class="pemoji">'+p.emoji+'</div>'+
+    '<div class="pname">'+p.name+'</div>'+
+    '<div class="pprice">'+fmtRp(p.price)+'</div>'+
+    '<div class="pqty">'+
+      '<button class="qbtn" data-act="dec" data-id="'+p.id+'">−</button>'+
+      '<span class="qval" id="qv-'+p.id+'">1</span>'+
+      '<button class="qbtn" data-act="inc" data-id="'+p.id+'">+</button>'+
+    '</div>';
+  grid.appendChild(d);
+});
+
+// ════════════════════════════════════════════
+// PACKAGE CLICK — toggle
+// ════════════════════════════════════════════
+grid.addEventListener('click', function(e){
+  if(e.target.closest('.qbtn')) return;
+  var card = e.target.closest('.pcard');
+  if(!card) return;
+  var id = card.getAttribute('data-id');
+  if(sel[id]){ delete sel[id]; }
+  else { sel[id] = 1; }
+  syncUI(); calcTotal(); validate();
+});
+
+// ════════════════════════════════════════════
+// QTY +/- CLICK
+// ════════════════════════════════════════════
+grid.addEventListener('click', function(e){
+  var btn = e.target.closest('.qbtn');
+  if(!btn) return;
+  e.stopPropagation();
+  var id  = btn.getAttribute('data-id');
+  var act = btn.getAttribute('data-act');
+  var q   = sel[id] || 1;
+  q += (act === 'inc') ? 1 : -1;
+  if(q < 1){ delete sel[id]; }
+  else { sel[id] = q; }
+  syncUI(); calcTotal(); validate();
+});
+
+function syncUI(){
+  document.querySelectorAll('.pcard').forEach(function(c){
+    var id = c.getAttribute('data-id');
+    if(sel[id]){
+      c.classList.add('on');
+      document.getElementById('qv-'+id).textContent = sel[id];
+    } else {
+      c.classList.remove('on');
+      document.getElementById('qv-'+id).textContent = '1';
+    }
+  });
+}
+
+// ════════════════════════════════════════════
+// TOTAL
+// ════════════════════════════════════════════
+function calcTotal(){
+  var t = 0;
+  PKGS.forEach(function(p){ if(sel[p.id]) t += p.price * sel[p.id]; });
+  var el = document.getElementById('tval');
+  el.textContent = fmtRp(t);
+  el.classList.add('bump');
+  setTimeout(function(){ el.classList.remove('bump'); }, 220);
+}
+
+// ════════════════════════════════════════════
+// FILE UPLOAD
+// ════════════════════════════════════════════
+var uzone  = document.getElementById('uzone');
+var finput = document.getElementById('finput');
+var pstrip = document.getElementById('pstrip');
+
+uzone.addEventListener('dragover', function(e){ e.preventDefault(); uzone.classList.add('over'); });
+uzone.addEventListener('dragleave',function(e){ e.preventDefault(); uzone.classList.remove('over'); });
+uzone.addEventListener('drop', function(e){
+  e.preventDefault(); uzone.classList.remove('over');
+  addFiles(e.dataTransfer.files);
+});
+finput.addEventListener('change', function(e){ addFiles(e.target.files); });
+
+function addFiles(fl){
+  for(var i=0;i<fl.length;i++){
+    var f = fl[i];
+    if(!f.type.match(/^image\//)) continue;
+    if(f.size > 8*1024*1024) continue;
+    files.push(f);
+  }
+  renderThumbs(); validate();
+}
+
+function renderThumbs(){
+  pstrip.innerHTML = '';
+  files.forEach(function(file, idx){
+    var wrap = document.createElement('div');
+    wrap.className = 'pthumb';
+    var r = new FileReader();
+    r.onload = function(ev){
+      wrap.innerHTML = '<img src="'+ev.target.result+'" alt="bukti" /><div class="trm" data-i="'+idx+'">✕</div>';
+    };
+    r.readAsDataURL(file);
+    pstrip.appendChild(wrap);
+  });
+}
+
+pstrip.addEventListener('click', function(e){
+  var rm = e.target.closest('.trm');
+  if(!rm) return;
+  files.splice(parseInt(rm.getAttribute('data-i')), 1);
+  renderThumbs(); validate();
+});
+
+// ════════════════════════════════════════════
+// VALIDATE
+// ════════════════════════════════════════════
+function validate(){
+  var nama   = document.getElementById('namaAnggota').value.trim();
+  var handle = document.getElementById('namaHandle').value.trim();
+  var hasPkg = Object.keys(sel).length > 0;
+  var hasFoto= files.length > 0;
+  document.getElementById('sbtn').disabled = !(nama && handle && hasPkg && hasFoto);
+}
+document.getElementById('namaAnggota').addEventListener('input', validate);
+document.getElementById('namaHandle').addEventListener('input', validate);
+
+// ════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════
+function showToast(msg, type){
+  var t  = document.getElementById('toast');
+  var ic = document.getElementById('ti');
+  document.getElementById('tmsg').textContent = msg;
+  t.className = 'toast ' + type;
+  if(type==='wait') ic.innerHTML = '<div class="spin"></div>';
+  else if(type==='ok') ic.innerHTML = '✅';
+  else ic.innerHTML = '❌';
+  t.classList.add('show');
+  if(type !== 'wait') setTimeout(function(){ t.classList.remove('show'); }, 3400);
+}
+function hideToast(){ document.getElementById('toast').classList.remove('show'); }
+
+// ════════════════════════════════════════════
+// SUBMIT
+// ════════════════════════════════════════════
+document.getElementById('sbtn').addEventListener('click', async function(){
+  var nama   = document.getElementById('namaAnggota').value.trim();
+  var handle = document.getElementById('namaHandle').value.trim();
+
+  // build lines
+  var lines = [], total = 0;
+  PKGS.forEach(function(p){
+    if(sel[p.id]){
+      var q = sel[p.id];
+      var sub = p.price * q;
+      total += sub;
+      lines.push(p.emoji + ' **' + p.name + '** × ' + q + '  →  ' + fmtRp(sub));
+    }
+  });
+
+  // embed
+  var embed = {
+    title: '📦 Order Baru Masuk',
+    color: 0xC9A84C,
+    description: '> Pesanan baru dari pedagang telah diterima.\n> Silakan verifikasi bukti pembayaran di bawah.',
+    fields:[
+      { name:'👤 Nama Anggota', value: nama,   inline:true  },
+      { name:'🏷️ Handle',      value: handle, inline:true  },
+      { name:'\u200B',          value:'\u200B', inline:true },
+      { name:'📦 Paket Dibeli', value: lines.join('\n'),     inline:false },
+      { name:'💰 Total Harga',  value: '### ' + fmtRp(total), inline:false }
+    ],
+    footer:{ text:'Pedagang Order System • Auto-sent' },
+    timestamp: new Date().toISOString()
+  };
+
+  showToast('Mengirim data ke Discord…', 'wait');
+  document.getElementById('sbtn').disabled = true;
+
+  // 1) send embed
+  try {
+    var r = await fetch(WH, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ embeds:[embed] })
+    });
+    if(!r.ok) throw new Error('Status: '+r.status);
+  } catch(e){
+    hideToast();
+    showToast('Gagal kirim data — '+e.message, 'err');
+    document.getElementById('sbtn').disabled = false;
+    return;
+  }
+
+  // 2) send photos
+  for(var i=0; i<files.length; i++){
+    var fd = new FormData();
+    fd.append('file', files[i], files[i].name);
+    if(i===0){
+      fd.append('payload_json', JSON.stringify({
+        content: '📸 **Bukti Pembayaran** — ' + nama + ' (' + handle + ')'
+      }));
+    }
+    try {
+      var r2 = await fetch(WH, { method:'POST', body: fd });
+      if(!r2.ok) throw new Error('Foto #'+(i+1)+' gagal');
+    } catch(e){
+      hideToast();
+      showToast('Gagal upload foto #'+(i+1), 'err');
+      document.getElementById('sbtn').disabled = false;
+      return;
+    }
+  }
+
+  // 3) success + reset
+  hideToast();
+  showToast('Order berhasil dikirim ke Discord!', 'ok');
+
+  setTimeout(function(){
+    document.getElementById('namaAnggota').value = '';
+    document.getElementById('namaHandle').value  = '';
+    sel = {}; files = [];
+    syncUI(); calcTotal(); renderThumbs(); validate();
+  }, 1600);
+});
+</script>
+</body>
+</html>
